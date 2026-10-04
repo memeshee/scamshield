@@ -6,18 +6,19 @@ English, grounded receipts, and what to do next.
 
 ## Why open-source AI is the core
 
-- Triage runs on an **open-weight model (Gemma 3)** via any OpenAI-compatible
-  endpoint (Ollama locally, 1-Click model, `GEMMA_BASE_URL`). No family chat
-  needs to live on a closed server to stay safe.
+- Every verdict carries an explanation written by an **open-weight model
+  (Gemma)** served through an OpenAI-compatible endpoint (`GEMMA_BASE_URL`,
+  any provider — Google AI Studio, Ollama locally, a 1-Click model).
+  Swap models, self-host, inspect every rule — impossible with a closed API.
 - **Local-first fallback:** the rule engine (pressure tactics, shorteners,
-  impersonation, on-chain probes) works offline and is labelled honestly, so
-  the demo never fakes intelligence.
-- Swap models, self-host, inspect every rule — impossible with a closed API.
+  impersonation, on-chain probes) scores without any network and the verdict
+  is labelled honestly, so the demo never fakes intelligence.
+- No family chat needs to live on a closed server to stay safe.
 
 ## Live
 
-- Bot: `https://t.me/<your-bot>` (after deploy, put real link here)
-- Dashboard: `https://scamshield.onrender.com` (health + verdict feed, 0 credits burned)
+- Bot: `https://t.me/scamsshield_bot`
+- Dashboard: `https://scamshield-g14e.onrender.com` (health + verdict feed, 0 credits burned)
 
 ## Run locally
 
@@ -38,8 +39,8 @@ service; add `TELEGRAM_BOT_TOKEN` (+ optional `SERPAPI_KEY`, `SENTRY_DSN`,
 
 ## Categories entered
 
-SerpApi (live search grounding) · Sentry Agent Tracing (traces in write-up) ·
-Mastra-style agent orchestration · Render (hosting) · Gemma (open-weight core)
+Render (hosting) · Gemma (open-weight explanations) · SerpApi (live search
+grounding) · Sentry (error + performance monitoring)
 
 ## Demo script (judges, 60s)
 
