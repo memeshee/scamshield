@@ -129,10 +129,21 @@ def gemma_note(text: str, signals: dict, timeout: float = 45.0) -> dict:
         )
         r.raise_for_status()
         content = r.json()["choices"][0]["message"]["content"].strip()
+        raw = content
         # reasoning-style models may wrap planning in <thought> blocks —
         # never show that to mum, keep only the actual answer.
         content = re.sub(r"<thought>.*?</thought>", "", content, flags=re.S).strip()
         content = re.sub(r"</?thought>", "", content).strip()
+        if not content:
+            # Some thinking models wrap the WHOLE reply (answer included)
+            # in one thought block. Recover the Thai/English answer lines.
+            th = re.search(r"\*?\s*Thai:\*?\s*(.+)", raw)
+            en = re.search(r"\*?\s*English:\*?\s*(.+)", raw)
+            if th and en:
+                content = (
+                    f"{th.group(1).strip().lstrip('* ')}"
+                    f"\n{en.group(1).strip().lstrip('* ')}"
+                )
         return {"skipped": False, "model": model, "note": content}
     except Exception as e:
         return {"skipped": False, "error": f"{type(e).__name__}: {e}"}
