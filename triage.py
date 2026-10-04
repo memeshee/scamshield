@@ -109,20 +109,30 @@ def gemma_note(text: str, signals: dict, timeout: float = 45.0) -> dict:
     model = os.getenv("GEMMA_MODEL", "gemma3").strip() or "gemma3"
     if not base or not text:
         return {"skipped": True}
+    headers: dict = {}
+    api_key = os.getenv("GEMMA_API_KEY", "").strip()
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
     prompt = (
         "You are ScamShield, a scam-safety helper for a Thai mother. "
-        "In 2 short sentences (Thai first, then English), explain why the "
-        "following message looks safe or suspicious. Plain words, no jargon.\n\n"
+        "Reply with ONLY 2 short sentences (Thai first, then English) "
+        "explaining why the following message looks safe or suspicious. "
+        "Plain words, no jargon, no preamble, no XML tags, no thinking aloud.\n\n"
         f"Message: {text[:1500]}\nSignals: {signals}"
     )
     try:
         r = httpx.post(
             f"{base}/v1/chat/completions",
-            json={"model": model, "messages": [{"role": "user", "content": prompt}], "max_tokens": 220},
+            headers=headers or None,
+            json={"model": model, "messages": [{"role": "user", "content": prompt}], "max_tokens": 600},
             timeout=timeout,
         )
         r.raise_for_status()
         content = r.json()["choices"][0]["message"]["content"].strip()
+        # reasoning-style models may wrap planning in <thought> blocks —
+        # never show that to mum, keep only the actual answer.
+        content = re.sub(r"<thought>.*?</thought>", "", content, flags=re.S).strip()
+        content = re.sub(r"</?thought>", "", content).strip()
         return {"skipped": False, "model": model, "note": content}
     except Exception as e:
         return {"skipped": False, "error": f"{type(e).__name__}: {e}"}

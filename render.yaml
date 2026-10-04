@@ -15,5 +15,7 @@ services:
         sync: false
       - key: GEMMA_BASE_URL
         sync: false
+      - key: GEMMA_API_KEY
+        sync: false
       - key: GEMMA_MODEL
         value: gemma3
