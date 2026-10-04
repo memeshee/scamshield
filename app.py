@@ -31,6 +31,24 @@ BOT_TASK_ERR: str | None = None
 log = logging.getLogger("scamshield")
 
 
+class _DemotePollConflict(logging.Filter):
+    """Render restarts overlap: old + new instance poll briefly, Telegram
+    kills one getUpdates stream. Benign and self-healing — keep it out of
+    Sentry (error level) while staying visible as a warning in logs."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        try:
+            if "terminated by other getUpdates request" in record.getMessage():
+                record.levelno = logging.WARNING
+                record.levelname = "WARNING"
+        except Exception:
+            pass
+        return True
+
+
+logging.getLogger("telegram.ext.Updater").addFilter(_DemotePollConflict())
+
+
 def db() -> sqlite3.Connection:
     c = sqlite3.connect(DB)
     c.execute(
